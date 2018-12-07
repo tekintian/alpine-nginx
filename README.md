@@ -151,7 +151,7 @@ mariadb104:
 
 如果您觉得本项目对您有用，请打赏支持开发，谢谢！
 
-![donate](E:/Bitbucket/tools/Alpine/alpine-php/donate.png)
+![donate](donate.png)
 
 
 
