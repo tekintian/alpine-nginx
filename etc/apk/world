@@ -1,0 +1,8 @@
+.nginx-rundeps
+alpine-baselayout
+alpine-keys
+apk-tools
+busybox
+libc-utils
+openrc
+tzdata
