@@ -14,6 +14,9 @@
 
       #fastcgi_pass php:9000;
 
+使用nginx自带参数 -s 停止nginx
+/usr/local/nginx/nginx -s stop
+
 
 
 To reload the NGINX configuration, run this command:

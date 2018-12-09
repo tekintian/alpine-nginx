@@ -2,7 +2,7 @@ FROM tekintian/alpine:3.8
 
 LABEL maintainer="TekinTian <tekintian@gmail.com>"
 
-ENV NGINX_VERSION 1.15.7
+ENV NGINX_VERSION 1.14.2
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& CONFIG="\
@@ -147,9 +147,8 @@ VOLUME {/var/www,/home/wwwroot}
 
 WORKDIR /var/www
 
-EXPOSE 80 443
+EXPOSE 80
 
 STOPSIGNAL SIGTERM
 
 CMD ["nginx", "-g", "daemon off;"]
-
