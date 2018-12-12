@@ -12,18 +12,28 @@
 
 默认工作目录目录：  /home/wwwroot
 
-      #fastcgi_pass php:9000;
+#fastcgi_pass php:9000;
+
+
+
+To reload the NGINX configuration, run this command:
+#重新加载容器中的nginx配置文件 相当于 service nginx reload
+docker kill -s HUP nginx
+
+#重启nginx容器 【nginx为你的nginx容器的名称】
+docker restart nginx
+
 
 使用nginx自带参数 -s 停止nginx
-/usr/local/nginx/nginx -s stop
+/usr/local/nginx/sbin/nginx -s stop
 
+重新加载配置
+/usr/local/nginx/sbin/nginx -s reload
 
 
 To reload the NGINX configuration, run this command:
 
 docker kill -s HUP nginx
-
-
 
 To restart NGINX, run this command to restart the container:
 
@@ -113,9 +123,9 @@ php70fpm:
   restart: always
   ports:
   - '9070:9000'
-  volumes:
-  - /home/wwwroot:/home/wwwroot
-#  - /home/dcdata/php70fpm/etc:/usr/local/etc
+  #与nginx共享数据
+  volumes_from:
+  - nginx
   external_links:
   - mariadb:db
 
