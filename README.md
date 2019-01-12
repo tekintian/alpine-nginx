@@ -10,7 +10,7 @@
 
 
 
-默认工作目录目录：  /home/wwwroot
+默认工作目录目录： /var/www/public
 
 #fastcgi_pass php:9000;
 
