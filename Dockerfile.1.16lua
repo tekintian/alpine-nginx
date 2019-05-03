@@ -2,7 +2,18 @@ FROM tekintian/alpine:3.8
 
 LABEL maintainer="TekinTian <tekintian@gmail.com>"
 
+# http://nginx.org/
 ENV NGINX_VERSION 1.16.0
+# https://github.com/nbs-system/naxsi
+ENV NAXSI_VERSION master
+# https://luajit.org/download.html
+ENV LUAJIT_VERSION 2.1.0-beta3
+# https://github.com/simplresty/ngx_devel_kit
+ENV NDK_VERSION 0.3.1rc1
+# https://github.com/openresty/lua-nginx-module/releases
+ENV LUA_VERSION 0.10.15
+# https://github.com/tekintian/lua-resty-core/
+COPY lua-rest-core/Makefile /tmp/lrc_Makefile
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& CONFIG="\
@@ -49,6 +60,13 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		--with-compat \
 		--with-file-aio \
 		--with-http_v2_module \
+		--add-module=/usr/src/naxsi-$NAXSI_VERSION/naxsi_src \
+		--with-ld-opt="-Wl,-rpath,/usr/local/luajit/lib" \
+        --add-dynamic-module=/usr/src/ngx_devel_kit-$NDK_VERSION \
+        --add-dynamic-module=/usr/src/lua-nginx-module-$LUA_VERSION \
+        --add-dynamic-module=/usr/src/set-misc-nginx-module-master \
+        --add-dynamic-module=/usr/src/encrypted-session-nginx-module-master \
+        --add-dynamic-module=/usr/src/echo-nginx-module-master \
 	" \
 	&& addgroup -g 82 -S www-data \
 	&& adduser -u 82 -D -S -h /var/cache/nginx -s /sbin/nologin -G www-data www-data \
@@ -67,6 +85,21 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		geoip-dev \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
+	&& curl -fSL https://github.com/nbs-system/naxsi/archive/$NAXSI_VERSION.tar.gz  -o naxsi-$NAXSI_VERSION.tar.gz \
+	&& curl -fSL https://github.com/simplresty/ngx_devel_kit/archive/v$NDK_VERSION.tar.gz  -o ngx_devel_kit-$NDK_VERSION.tar.gz \
+	&& curl -fSL https://luajit.org/download/LuaJIT-$LUAJIT_VERSION.tar.gz  -o LuaJIT-$LUAJIT_VERSION.tar.gz \
+	&& curl -fSL https://github.com/openresty/lua-nginx-module/archive/v$LUA_VERSION.tar.gz  -o lua-nginx-module-$LUA_VERSION.tar.gz \
+	&& curl -fSL https://github.com/openresty/lua-resty-core/archive/master.tar.gz  -o lua-resty-core-master.tar.gz \
+	&& curl -fSL https://github.com/openresty/set-misc-nginx-module/archive/master.tar.gz  -o set-misc-nginx-module-master.tar.gz \
+	&& curl -fSL https://github.com/openresty/encrypted-session-nginx-module/archive/master.tar.gz  -o encrypted-session-nginx-module-master.tar.gz \
+	&& curl -fSL https://github.com/openresty/echo-nginx-module/archive/master.tar.gz  -o echo-nginx-module-master.tar.gz \
+	\
+	&& curl -fSL https://github.com/openresty/lua-resty-lrucache/archive/master.tar.gz  -o lua-resty-lrucache-master.tar.gz \
+	&& curl -fSL https://github.com/openresty/lua-resty-redis/archive/master.tar.gz  -o lua-resty-redis-master.tar.gz \
+	&& curl -fSL https://github.com/openresty/lua-resty-mysql/archive/master.tar.gz  -o lua-resty-mysql-master.tar.gz \
+	&& curl -fSL https://github.com/cloudflare/lua-resty-logger-socket/archive/master.tar.gz  -o lua-resty-logger-socket-master.tar.gz \
+	&& curl -fSL https://github.com/openresty/lua-resty-string/archive/master.tar.gz  -o lua-resty-string-master.tar.gz \
+	\
 	&& export GNUPGHOME="$(mktemp -d)" \
 	&& found=''; \
 	for server in \
@@ -83,7 +116,30 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& rm -rf "$GNUPGHOME" nginx.tar.gz.asc \
 	&& mkdir -p /usr/src \
 	&& tar -zxC /usr/src -f nginx.tar.gz \
-	&& rm nginx.tar.gz \
+	&& tar -zxC /usr/src -f naxsi-$NAXSI_VERSION.tar.gz \
+	&& tar -zxC /usr/src -f LuaJIT-$LUAJIT_VERSION.tar.gz \
+	&& tar -zxC /usr/src -f ngx_devel_kit-$NDK_VERSION.tar.gz \
+	&& tar -zxC /usr/src -f lua-nginx-module-$LUA_VERSION.tar.gz \
+	&& tar -zxC /usr/src -f lua-resty-core-master.tar.gz \
+	&& tar -zxC /usr/src -f set-misc-nginx-module-master.tar.gz \
+	&& tar -zxC /usr/src -f encrypted-session-nginx-module-master.tar.gz \
+	&& tar -zxC /usr/src -f echo-nginx-module-master.tar.gz \
+	\
+	&& tar -zxC /usr/src -f lua-resty-lrucache-master.tar.gz \
+	&& tar -zxC /usr/src -f lua-resty-redis-master.tar.gz \
+	&& tar -zxC /usr/src -f lua-resty-mysql-master.tar.gz \
+	&& tar -zxC /usr/src -f lua-resty-logger-socket-master.tar.gz \
+	&& tar -zxC /usr/src -f lua-resty-string-master.tar.gz \
+	\
+	&& rm -rf *.tar.gz \
+	&& cd /usr/src/LuaJIT-$LUAJIT_VERSION \
+	&& make install PREFIX=/usr/local/luajit \
+	&& export LUAJIT_LIB=/usr/local/luajit/lib \
+	&& export LUAJIT_INC=/usr/local/luajit/include/luajit-2.1 \
+	&& cd /usr/src/lua-resty-core-master \
+	&& mv Makefile Makefile.bk \
+	&& mv /tmp/lrc_Makefile /usr/src/lua-resty-core-master/Makefile \
+	&& make && make install \
 	&& cd /usr/src/nginx-$NGINX_VERSION \
 	&& ./configure $CONFIG --with-debug \
 	&& make -j$(getconf _NPROCESSORS_ONLN) \
@@ -108,8 +164,13 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& ln -s ../../usr/lib/nginx/modules /etc/nginx/modules \
 	&& strip /usr/sbin/nginx* \
 	&& strip /usr/lib/nginx/modules/*.so \
-	&& rm -rf /usr/src/nginx-$NGINX_VERSION \
-	\
+	&& cp /usr/src/naxsi-$NAXSI_VERSION/naxsi_config/naxsi_core.rules /etc/nginx/naxsi_core.rules \
+	&& cp -a -r /usr/src/lua-resty-lrucache-master/lib/resty/*  /etc/nginx/lua/lib/$LUA_VERSION/resty/ \
+	&& cp -a -r /usr/src/lua-resty-redis-master/lib/resty/*  /etc/nginx/lua/lib/$LUA_VERSION/resty/ \
+	&& cp -a -r /usr/src/lua-resty-mysql-master/lib/resty/*  /etc/nginx/lua/lib/$LUA_VERSION/resty/ \
+	&& cp -a -r /usr/src/lua-resty-logger-socket-master/lib/resty/*  /etc/nginx/lua/lib/$LUA_VERSION/resty/ \
+	&& cp -a -r /usr/src/lua-resty-string-master/lib/resty/*  /etc/nginx/lua/lib/$LUA_VERSION/resty/ \
+	&& rm -rf /usr/src  \
 	# Bring in gettext so we can get `envsubst`, then throw
 	# the rest away. To do this, we need to install `gettext`
 	# then move `envsubst` out of the way so `gettext` can
@@ -138,9 +199,10 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 
 COPY public/tz.php /var/www/public/tz.php
 COPY public/index.html /var/www/public/index.html
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.lua.conf /etc/nginx/nginx.conf
+COPY naxsi.rules /etc/nginx/conf.d/naxsi.rules
 COPY fastcgi.conf /etc/nginx/fastcgi.conf
-COPY nginx.vh.default.conf /etc/nginx/conf.d/default.conf
+COPY nginx.lua.default.conf /etc/nginx/conf.d/default.conf
 
 VOLUME /var/www
 
@@ -151,3 +213,4 @@ EXPOSE 80 443
 STOPSIGNAL SIGTERM
 
 CMD ["nginx", "-g", "daemon off;"]
+

@@ -1,14 +1,8 @@
 # alpine nginx docker container
 
-
-
 基于alpine的nginx 容器
 
-
-
 默认nginx用户为 www-data
-
-
 
 默认工作目录目录： /var/www/public
 
@@ -150,17 +144,52 @@ mariadb104:
 # 然后在nginx容器中就 可以使用  db 作为数据库的服务器地址来用了，注意端口是3306 不是你对外暴露的端口。
 ```
 
+~~~shell
+docker build -f Dockerfile.1.16ndk -t tekintian/alpine-nginx:1.16ndk .
+~~~
+
+Nginx NDK + lua + naxsi 版本资源
+~~~html
+nginx + lua + naxsi 资源说明
+
+modules 文件夹中的文件为 nginx的编译模块 .so文件
+
+lua 文件夹中的为lua文件,
+
+动态模块加载
 
 
+相关资源链接:
+http://nginx.org/en/docs/ngx_core_module.html#load_module
+
+https://github.com/openresty/lua-nginx-module
+
+https://github.com/tekintian/set-misc-nginx-module
+
+
+
+https://github.com/nbs-system/naxsi
+
+https://luajit.org/download.html
+
+https://github.com/openresty/lua-nginx-module
+https://github.com/openresty/lua-resty-core
+https://github.com/openresty/lua-resty-lrucache
+https://github.com/openresty/lua-resty-redis
+https://github.com/openresty/lua-resty-mysql
+
+https://github.com/openresty/set-misc-nginx-module
+https://github.com/openresty/encrypted-session-nginx-module
+https://github.com/openresty/echo-nginx-module
+
+https://github.com/cloudflare/lua-resty-logger-socket
+https://github.com/openresty/lua-resty-string
+~~~
 
 
 ## Support 技术支持
 
 ​	需要其他的特定环境或则模块支持，可联系定制开发容器 ， Email: tekintian@gmail.com  QQ:932256355
-
-
-
-
 
 如果您觉得本项目对您有用，请打赏支持开发，谢谢！
 

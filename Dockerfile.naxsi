@@ -50,8 +50,6 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		--with-compat \
 		--with-file-aio \
 		--with-http_v2_module \
-		--with-http_limit_conn_module \
-		--with-http_limit_req_module \
 		--add-module=../naxsi-$NAXSI_VERSION/naxsi_src/ \
 	" \
 	&& addgroup -g 82 -S www-data \
@@ -69,7 +67,6 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		libxslt-dev \
 		gd-dev \
 		geoip-dev \
-		libpcre3-dev \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
 	&& curl -fSL https://github.com/nbs-system/naxsi/archive/$NAXSI_VERSION.tar.gz  -o naxsi.tar.gz \
@@ -148,7 +145,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 
 COPY public/tz.php /var/www/public/tz.php
 COPY public/index.html /var/www/public/index.html
-COPY nginx_naxsi.conf /etc/nginx/nginx.conf
+COPY nginx.naxsi.conf /etc/nginx/nginx.conf
 COPY naxsi.rules /etc/nginx/conf.d/naxsi.rules
 COPY fastcgi.conf /etc/nginx/fastcgi.conf
 COPY nginx.naxsi.default.conf /etc/nginx/conf.d/default.conf
