@@ -145,7 +145,9 @@ mariadb104:
 ```
 
 ~~~shell
-docker build -f Dockerfile.1.16ndk -t tekintian/alpine-nginx:1.16ndk .
+docker build -f Dockerfile.1.16lua -t tekintian/alpine-nginx:1.16.0lua .
+
+
 ~~~
 
 Nginx NDK + lua + naxsi 版本资源
@@ -184,6 +186,8 @@ https://github.com/openresty/echo-nginx-module
 
 https://github.com/cloudflare/lua-resty-logger-socket
 https://github.com/openresty/lua-resty-string
+https://github.com/cloudflare/lua-resty-cookie
+
 ~~~
 
 

@@ -12,8 +12,12 @@ ENV LUAJIT_VERSION 2.1.0-beta3
 ENV NDK_VERSION 0.3.1rc1
 # https://github.com/openresty/lua-nginx-module/releases
 ENV LUA_VERSION 0.10.15
+# https://github.com/openresty/lua-cjson/releases
+ENV LUA_CJSON_VERSION 2.1.0.7
+# https://github.com/ledgetech/lua-resty-http/releases
+ENV LUA_HTTP_VERSION 0.13
 # https://github.com/tekintian/lua-resty-core/
-COPY lua-rest-core/Makefile /tmp/lrc_Makefile
+COPY assets/lua-rest-core/Makefile /tmp/lrc_Makefile
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& CONFIG="\
@@ -61,7 +65,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		--with-file-aio \
 		--with-http_v2_module \
 		--add-module=/usr/src/naxsi-$NAXSI_VERSION/naxsi_src \
-		--with-ld-opt="-Wl,-rpath,/usr/local/luajit/lib" \
+		--with-ld-opt="-Wl,-rpath,/usr/local/lib" \
         --add-dynamic-module=/usr/src/ngx_devel_kit-$NDK_VERSION \
         --add-dynamic-module=/usr/src/lua-nginx-module-$LUA_VERSION \
         --add-dynamic-module=/usr/src/set-misc-nginx-module-master \
@@ -92,7 +96,10 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& curl -fSL https://github.com/openresty/lua-resty-core/archive/master.tar.gz  -o lua-resty-core-master.tar.gz \
 	&& curl -fSL https://github.com/openresty/set-misc-nginx-module/archive/master.tar.gz  -o set-misc-nginx-module-master.tar.gz \
 	&& curl -fSL https://github.com/openresty/encrypted-session-nginx-module/archive/master.tar.gz  -o encrypted-session-nginx-module-master.tar.gz \
+	&& curl -fSL https://github.com/cloudflare/lua-resty-cookie/archive/master.tar.gz  -o lua-resty-cookie-master.tar.gz \
 	&& curl -fSL https://github.com/openresty/echo-nginx-module/archive/master.tar.gz  -o echo-nginx-module-master.tar.gz \
+	&& curl -fSL https://github.com/openresty/lua-cjson/archive/$LUA_CJSON_VERSION.tar.gz  -o lua-cjson-$LUA_CJSON_VERSION.tar.gz \
+	&& curl -fSL https://github.com/ledgetech/lua-resty-http/archive/v$LUA_HTTP_VERSION.tar.gz  -o lua-resty-http-$LUA_HTTP_VERSION.tar.gz \
 	\
 	&& curl -fSL https://github.com/openresty/lua-resty-lrucache/archive/master.tar.gz  -o lua-resty-lrucache-master.tar.gz \
 	&& curl -fSL https://github.com/openresty/lua-resty-redis/archive/master.tar.gz  -o lua-resty-redis-master.tar.gz \
@@ -123,7 +130,10 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& tar -zxC /usr/src -f lua-resty-core-master.tar.gz \
 	&& tar -zxC /usr/src -f set-misc-nginx-module-master.tar.gz \
 	&& tar -zxC /usr/src -f encrypted-session-nginx-module-master.tar.gz \
+	&& tar -zxC /usr/src -f lua-resty-cookie-master.tar.gz \
 	&& tar -zxC /usr/src -f echo-nginx-module-master.tar.gz \
+	&& tar -zxC /usr/src -f lua-cjson-$LUA_CJSON_VERSION.tar.gz \
+	&& tar -zxC /usr/src -f lua-resty-http-$LUA_HTTP_VERSION.tar.gz \
 	\
 	&& tar -zxC /usr/src -f lua-resty-lrucache-master.tar.gz \
 	&& tar -zxC /usr/src -f lua-resty-redis-master.tar.gz \
@@ -132,14 +142,20 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& tar -zxC /usr/src -f lua-resty-string-master.tar.gz \
 	\
 	&& rm -rf *.tar.gz \
+	# LuaJIT 2.1.x install \
 	&& cd /usr/src/LuaJIT-$LUAJIT_VERSION \
-	&& make install PREFIX=/usr/local/luajit \
-	&& export LUAJIT_LIB=/usr/local/luajit/lib \
-	&& export LUAJIT_INC=/usr/local/luajit/include/luajit-2.1 \
+	&& make install PREFIX=/usr/local \
+	&& export LUAJIT_LIB=/usr/local/lib \
+	&& export LUAJIT_INC=/usr/local/include/luajit-2.1 \
+	# lua-resty-core install \
 	&& cd /usr/src/lua-resty-core-master \
 	&& mv Makefile Makefile.bk \
 	&& mv /tmp/lrc_Makefile /usr/src/lua-resty-core-master/Makefile \
 	&& make && make install \
+	# lua-json install more https://www.kyne.com.au/~mark/software/lua-cjson-manual.html#_installation \
+	&& cd /usr/src/lua-cjson-$LUA_CJSON_VERSION \
+	&& make && make install \
+	# Lua resty core install \
 	&& cd /usr/src/nginx-$NGINX_VERSION \
 	&& ./configure $CONFIG --with-debug \
 	&& make -j$(getconf _NPROCESSORS_ONLN) \
@@ -170,7 +186,9 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& cp -a -r /usr/src/lua-resty-mysql-master/lib/resty/*  /etc/nginx/lua/lib/$LUA_VERSION/resty/ \
 	&& cp -a -r /usr/src/lua-resty-logger-socket-master/lib/resty/*  /etc/nginx/lua/lib/$LUA_VERSION/resty/ \
 	&& cp -a -r /usr/src/lua-resty-string-master/lib/resty/*  /etc/nginx/lua/lib/$LUA_VERSION/resty/ \
-	&& rm -rf /usr/src  \
+	&& cp -a -r /usr/src/lua-resty-http-$LUA_HTTP_VERSION/lib/resty/*  /etc/nginx/lua/lib/$LUA_VERSION/resty/ \
+	&& cp -a -r /usr/src/lua-resty-cookie-master/lib/resty/*  /etc/nginx/lua/lib/$LUA_VERSION/resty/ \
+	&& rm -rf /usr/src/*  \
 	# Bring in gettext so we can get `envsubst`, then throw
 	# the rest away. To do this, we need to install `gettext`
 	# then move `envsubst` out of the way so `gettext` can

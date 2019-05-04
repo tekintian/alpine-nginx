@@ -2,7 +2,7 @@ FROM tekintian/alpine:3.8
 
 LABEL maintainer="TekinTian <tekintian@gmail.com>"
 
-ENV NGINX_VERSION 1.15.12
+ENV NGINX_VERSION 1.16.0
 ENV NAXSI_VERSION 0.56
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
@@ -114,8 +114,8 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& strip /usr/sbin/nginx* \
 	&& strip /usr/lib/nginx/modules/*.so \
 	&& cp /usr/src/naxsi-$NAXSI_VERSION/naxsi_config/naxsi_core.rules /etc/nginx/naxsi_core.rules \
-	&& rm -rf /usr/src/nginx-$NGINX_VERSION \
-	&& rm -rf /usr/src/naxsi-$NAXSI_VERSION \
+	#&& rm -rf /usr/src/nginx-$NGINX_VERSION \
+	&& rm -rf /usr/src/* \
 	\
 	# Bring in gettext so we can get `envsubst`, then throw
 	# the rest away. To do this, we need to install `gettext`
