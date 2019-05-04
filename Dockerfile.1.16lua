@@ -18,6 +18,7 @@ ENV LUA_CJSON_VERSION 2.1.0.7
 ENV LUA_HTTP_VERSION 0.13
 # https://github.com/tekintian/lua-resty-core/
 COPY assets/lua-rest-core/Makefile /tmp/lrc_Makefile
+COPY src/lua-cjson-2.1.0.7 /tmp/lua-cjson-2.1.0.7
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& CONFIG="\
@@ -65,7 +66,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		--with-file-aio \
 		--with-http_v2_module \
 		--add-module=/usr/src/naxsi-$NAXSI_VERSION/naxsi_src \
-		--with-ld-opt="-Wl,-rpath,/usr/local/lib" \
+		--with-ld-opt="-Wl,-rpath,/usr/local/luajit/lib" \
         --add-dynamic-module=/usr/src/ngx_devel_kit-$NDK_VERSION \
         --add-dynamic-module=/usr/src/lua-nginx-module-$LUA_VERSION \
         --add-dynamic-module=/usr/src/set-misc-nginx-module-master \
@@ -98,7 +99,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& curl -fSL https://github.com/openresty/encrypted-session-nginx-module/archive/master.tar.gz  -o encrypted-session-nginx-module-master.tar.gz \
 	&& curl -fSL https://github.com/cloudflare/lua-resty-cookie/archive/master.tar.gz  -o lua-resty-cookie-master.tar.gz \
 	&& curl -fSL https://github.com/openresty/echo-nginx-module/archive/master.tar.gz  -o echo-nginx-module-master.tar.gz \
-	&& curl -fSL https://github.com/openresty/lua-cjson/archive/$LUA_CJSON_VERSION.tar.gz  -o lua-cjson-$LUA_CJSON_VERSION.tar.gz \
+	#&& curl -fSL https://github.com/openresty/lua-cjson/archive/$LUA_CJSON_VERSION.tar.gz  -o lua-cjson-$LUA_CJSON_VERSION.tar.gz \
 	&& curl -fSL https://github.com/ledgetech/lua-resty-http/archive/v$LUA_HTTP_VERSION.tar.gz  -o lua-resty-http-$LUA_HTTP_VERSION.tar.gz \
 	\
 	&& curl -fSL https://github.com/openresty/lua-resty-lrucache/archive/master.tar.gz  -o lua-resty-lrucache-master.tar.gz \
@@ -132,7 +133,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& tar -zxC /usr/src -f encrypted-session-nginx-module-master.tar.gz \
 	&& tar -zxC /usr/src -f lua-resty-cookie-master.tar.gz \
 	&& tar -zxC /usr/src -f echo-nginx-module-master.tar.gz \
-	&& tar -zxC /usr/src -f lua-cjson-$LUA_CJSON_VERSION.tar.gz \
+	#&& tar -zxC /usr/src -f lua-cjson-$LUA_CJSON_VERSION.tar.gz \
 	&& tar -zxC /usr/src -f lua-resty-http-$LUA_HTTP_VERSION.tar.gz \
 	\
 	&& tar -zxC /usr/src -f lua-resty-lrucache-master.tar.gz \
@@ -144,16 +145,17 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& rm -rf *.tar.gz \
 	# LuaJIT 2.1.x install \
 	&& cd /usr/src/LuaJIT-$LUAJIT_VERSION \
-	&& make install PREFIX=/usr/local \
-	&& export LUAJIT_LIB=/usr/local/lib \
-	&& export LUAJIT_INC=/usr/local/include/luajit-2.1 \
+	&& make install PREFIX=/usr/local/luajit \
+	&& export LUAJIT_LIB=/usr/local/luajit/lib \
+	&& export LUAJIT_INC=/usr/local/luajit/include/luajit-2.1 \
+	&& ln -sf /usr/local/luajit/bin/luajit-2.1.0-beta3 /usr/local/luajit/bin/luajit \
 	# lua-resty-core install \
 	&& cd /usr/src/lua-resty-core-master \
 	&& mv Makefile Makefile.bk \
 	&& mv /tmp/lrc_Makefile /usr/src/lua-resty-core-master/Makefile \
 	&& make && make install \
 	# lua-json install more https://www.kyne.com.au/~mark/software/lua-cjson-manual.html#_installation \
-	&& cd /usr/src/lua-cjson-$LUA_CJSON_VERSION \
+	&& cd /tmp/lua-cjson-$LUA_CJSON_VERSION \
 	&& make && make install \
 	# Lua resty core install \
 	&& cd /usr/src/nginx-$NGINX_VERSION \
