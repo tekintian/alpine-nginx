@@ -145,8 +145,15 @@ mariadb104:
 ```
 
 ~~~shell
-docker build -f Dockerfile.1.16lua -t tekintian/alpine-nginx:1.16.0lua .
+# alpine 3.9
+docker build -f Dockerfile -t tekintian/alpine-nginx .
+docker build -f latest.Dockerfile -t tekintian/alpine-nginx .
+docker build -f stable.Dockerfile -t tekintian/alpine-nginx:stable .
+docker build -f 1.15.Dockerfile -t tekintian/alpine-nginx:1.15.12 .
 
+# alpine 3.8
+docker build -f 1.16lua.Dockerfile -t tekintian/alpine-nginx:1.16lua .
+docker build -f naxsi.Dockerfile -t tekintian/alpine-nginx:naxsi .
 
 ~~~
 
@@ -198,16 +205,6 @@ https://github.com/cloudflare/lua-resty-cookie
 如果您觉得本项目对您有用，请打赏支持开发，谢谢！
 
 ![donate](donate.png)
-
-
-
-
-
-
-
-
-
-
 
 
 

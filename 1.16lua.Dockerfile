@@ -1,4 +1,4 @@
-FROM tekintian/alpine:3.9
+FROM tekintian/alpine:3.8
 
 LABEL maintainer="TekinTian <tekintian@gmail.com>"
 
@@ -90,6 +90,13 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		geoip-dev \
 		wget \
 		unzip \
+	\
+	&& cd /tmp/ \
+	&& wget https://github.com/tekintian/alpine-nginx/raw/master/src_conf.zip -O src_conf.zip \
+	&& unzip src_conf.zip \
+	&& mv src_conf/* /tmp \
+	&& cd /usr/src \
+	\
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
 	&& curl -fSL https://github.com/nbs-system/naxsi/archive/$NAXSI_VERSION.tar.gz  -o naxsi-$NAXSI_VERSION.tar.gz \
@@ -143,12 +150,6 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& tar -zxC /usr/src -f lua-resty-mysql-master.tar.gz \
 	&& tar -zxC /usr/src -f lua-resty-logger-socket-master.tar.gz \
 	&& tar -zxC /usr/src -f lua-resty-string-master.tar.gz \
-	\
-	&& rm -rf *.tar.gz \
-	&& cd /tmp/ \
-	&& wget https://github.com/tekintian/alpine-nginx/raw/master/src_conf.zip -o src_conf.zip \
-	&& unzip src_conf.zip --strip-components=1 \
-	&& cd /usr/src \
 	# LuaJIT 2.1.x install \
 	&& cd /usr/src/LuaJIT-$LUAJIT_VERSION \
 	&& make install PREFIX=/usr/local/luajit \
@@ -186,7 +187,6 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& cp -a -r /usr/src/lua-resty-string-master/lib/resty/*  /etc/nginx/lua/lib/$LUA_VERSION/resty/ \
 	&& cp -a -r /usr/src/lua-resty-http-$LUA_HTTP_VERSION/lib/resty/*  /etc/nginx/lua/lib/$LUA_VERSION/resty/ \
 	&& cp -a -r /usr/src/lua-resty-cookie-master/lib/resty/*  /etc/nginx/lua/lib/$LUA_VERSION/resty/ \
-	&& rm -rf /usr/src/*  \
 	# Bring in gettext so we can get `envsubst`, then throw
 	# the rest away. To do this, we need to install `gettext`
 	# then move `envsubst` out of the way so `gettext` can
@@ -203,16 +203,8 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& apk add --no-cache --virtual .nginx-rundeps $runDeps \
 	# diy conf file
 	#backup default nginx.conf
-	&& mv /etc/nginx/nginx.conf /etc/nginx/nginx_conf \
-	# wget the conf file
-	# && wget -O /etc/nginx/nginx.conf https://raw.githubusercontent.com/tekintian/alpine-nginx/master/nginx.lua.conf \
-	# && wget -O /etc/nginx/conf.d/naxsi.rules https://raw.githubusercontent.com/tekintian/alpine-nginx/master/naxsi.rules \
-	# && wget -O /etc/nginx/fastcgi.conf https://raw.githubusercontent.com/tekintian/alpine-nginx/master/fastcgi.conf \
-	# && wget -O /etc/nginx/conf.d/default.conf https://raw.githubusercontent.com/tekintian/alpine-nginx/master/nginx.vh.default.conf \
-	# && wget -O /var/www/public/index.html https://raw.githubusercontent.com/tekintian/alpine-nginx/master/public/index.html \
-	# && wget -O /var/www/public/50x.html https://raw.githubusercontent.com/tekintian/alpine-nginx/master/public/50x.html \
+	&& mv /etc/nginx/nginx.conf /etc/nginx/nginx_conf.default \
 	&& cd /tmp/ \
-	&& mv public/tz.php /var/www/public/tz.php \
 	&& mv public/index.html /var/www/public/index.html \
 	&& mv nginx.lua.conf /etc/nginx/nginx.conf \
 	&& mv naxsi.rules /etc/nginx/conf.d/naxsi.rules \

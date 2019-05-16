@@ -66,6 +66,14 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		gd-dev \
 		geoip-dev \
 		wget \
+		unzip \
+	\
+	&& cd /tmp/ \
+	&& wget https://github.com/tekintian/alpine-nginx/raw/master/src_conf.zip -O src_conf.zip \
+	&& unzip src_conf.zip \
+	&& mv src_conf/* /tmp \
+	&& cd /usr/src \
+	\
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
 	&& export GNUPGHOME="$(mktemp -d)" \
@@ -84,7 +92,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& rm -rf "$GNUPGHOME" nginx.tar.gz.asc \
 	&& mkdir -p /usr/src \
 	&& tar -zxC /usr/src -f nginx.tar.gz \
-	&& rm nginx.tar.gz \
+	&& rm -rf *.tar.gz \
 	&& cd /usr/src/nginx-$NGINX_VERSION \
 	&& ./configure $CONFIG \
 	&& make -j$(getconf _NPROCESSORS_ONLN) \
@@ -117,14 +125,16 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& apk add --no-cache --virtual .nginx-rundeps $runDeps \
 	# diy conf file
 	#backup default nginx.conf
-	&& mv /etc/nginx/nginx.conf /etc/nginx/nginx_conf \
+	&& mv /etc/nginx/nginx.conf /etc/nginx/nginx_conf.default \
 	# wget the conf file
-	&& wget -O /etc/nginx/nginx.conf https://raw.githubusercontent.com/tekintian/alpine-nginx/master/nginx.conf \
-	&& wget -O /etc/nginx/fastcgi.conf https://raw.githubusercontent.com/tekintian/alpine-nginx/master/fastcgi.conf \
-	&& wget -O /etc/nginx/conf.d/default.conf https://raw.githubusercontent.com/tekintian/alpine-nginx/master/nginx.vh.default.conf \
-	&& wget -O /var/www/public/index.html https://raw.githubusercontent.com/tekintian/alpine-nginx/master/public/index.html \
-	&& wget -O /var/www/public/50x.html https://raw.githubusercontent.com/tekintian/alpine-nginx/master/public/50x.html \
+	\
+	&& cd /tmp/ \
+	&& mv public/index.html /var/www/public/index.html \
+	&& mv nginx.conf /etc/nginx/nginx.conf \
+	&& mv fastcgi.conf /etc/nginx/fastcgi.conf \
+	&& mv nginx.vh.default.conf /etc/nginx/conf.d/default.conf \
 	# diy conf file end
+	\
 	&& apk del .build-deps \
 	&& apk del .gettext \
 	&& mv /tmp/envsubst /usr/local/bin/ \
@@ -135,7 +145,9 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	\
 	# forward request and error logs to docker log collector
 	&& ln -sf /dev/stdout /var/log/nginx/access.log \
-	&& ln -sf /dev/stderr /var/log/nginx/error.log
+	&& ln -sf /dev/stderr /var/log/nginx/error.log \
+	&& rm -rf /tmp/* \
+	&& rm -rf /usr/src/*
 
 VOLUME /var/www
 WORKDIR /var/www
