@@ -95,7 +95,6 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& wget https://github.com/tekintian/alpine-nginx/raw/master/src_conf.zip -O src_conf.zip \
 	&& unzip src_conf.zip \
 	&& mv src_conf/* /tmp \
-	&& cd /usr/src \
 	\
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
