@@ -1,4 +1,4 @@
-FROM tekintian/alpine:3.8
+FROM tekintian/alpine:3.9
 
 LABEL maintainer="TekinTian <tekintian@gmail.com>"
 
@@ -89,6 +89,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		gd-dev \
 		geoip-dev \
 		wget \
+		unzip \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
 	&& curl -fSL https://github.com/nbs-system/naxsi/archive/$NAXSI_VERSION.tar.gz  -o naxsi-$NAXSI_VERSION.tar.gz \
@@ -144,6 +145,10 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& tar -zxC /usr/src -f lua-resty-string-master.tar.gz \
 	\
 	&& rm -rf *.tar.gz \
+	&& cd /tmp/ \
+	&& wget https://github.com/tekintian/alpine-nginx/raw/master/src_conf.zip -o src_conf.zip \
+	&& unzip src_conf.zip --strip-components=1 \
+	&& cd /usr/src \
 	# LuaJIT 2.1.x install \
 	&& cd /usr/src/LuaJIT-$LUAJIT_VERSION \
 	&& make install PREFIX=/usr/local/luajit \
@@ -206,7 +211,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	# && wget -O /etc/nginx/conf.d/default.conf https://raw.githubusercontent.com/tekintian/alpine-nginx/master/nginx.vh.default.conf \
 	# && wget -O /var/www/public/index.html https://raw.githubusercontent.com/tekintian/alpine-nginx/master/public/index.html \
 	# && wget -O /var/www/public/50x.html https://raw.githubusercontent.com/tekintian/alpine-nginx/master/public/50x.html \
-	&& cd /tmp \
+	&& cd /tmp/ \
 	&& mv public/tz.php /var/www/public/tz.php \
 	&& mv public/index.html /var/www/public/index.html \
 	&& mv nginx.lua.conf /etc/nginx/nginx.conf \
@@ -225,10 +230,10 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	# forward request and error logs to docker log collector
 	&& ln -sf /dev/stdout /var/log/nginx/access.log \
 	&& ln -sf /dev/stderr /var/log/nginx/error.log \
-	&& rm -rf /tmp/* 
+	&& rm -rf /tmp/* \
+	&& rm -rf /usr/src/*
 
 VOLUME /var/www
-
 WORKDIR /var/www
 
 EXPOSE 80 443
