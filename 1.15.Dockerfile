@@ -1,8 +1,8 @@
-FROM tekintian/alpine:3.9
+FROM alpine:3.9
 
-LABEL maintainer="TekinTian <tekintian@gmail.com>"
-# http://nginx.org/en/download.html
-ENV NGINX_VERSION 1.16.0
+LABEL maintainer="NGINX Docker Maintainers <docker-maint@nginx.com>"
+
+ENV NGINX_VERSION 1.15.12
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& CONFIG="\
@@ -19,8 +19,8 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		--http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp \
 		--http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp \
 		--http-scgi-temp-path=/var/cache/nginx/scgi_temp \
-		--user=www-data \
-		--group=www-data \
+		--user=nginx \
+		--group=nginx \
 		--with-http_ssl_module \
 		--with-http_realip_module \
 		--with-http_addition_module \
@@ -50,8 +50,8 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		--with-file-aio \
 		--with-http_v2_module \
 	" \
-	&& addgroup -g 82 -S www-data \
-	&& adduser -u 82 -D -S -h /var/cache/nginx -s /sbin/nologin -G www-data www-data \
+	&& addgroup -S nginx \
+	&& adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
 	&& apk add --no-cache --virtual .build-deps \
 		gcc \
 		libc-dev \
@@ -97,9 +97,9 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& make install \
 	&& rm -rf /etc/nginx/html/ \
 	&& mkdir /etc/nginx/conf.d/ \
-	&& mkdir -p /var/www/public/ \
-	&& install -m644 html/index.html /var/www/public/ \
-	&& install -m644 html/50x.html /var/www/public/ \
+	&& mkdir -p /usr/share/nginx/html/ \
+	&& install -m644 html/index.html /usr/share/nginx/html/ \
+	&& install -m644 html/50x.html /usr/share/nginx/html/ \
 	&& install -m755 objs/nginx-debug /usr/sbin/nginx-debug \
 	&& install -m755 objs/ngx_http_xslt_filter_module-debug.so /usr/lib/nginx/modules/ngx_http_xslt_filter_module-debug.so \
 	&& install -m755 objs/ngx_http_image_filter_module-debug.so /usr/lib/nginx/modules/ngx_http_image_filter_module-debug.so \
@@ -134,21 +134,13 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	\
 	# forward request and error logs to docker log collector
 	&& ln -sf /dev/stdout /var/log/nginx/access.log \
-	&& ln -sf /dev/stderr /var/log/nginx/error.log 
+	&& ln -sf /dev/stderr /var/log/nginx/error.log
 
-COPY public/tz.php /var/www/public/tz.php
-COPY public/index.html /var/www/public/index.html
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY fastcgi.conf /etc/nginx/fastcgi.conf
 COPY nginx.vh.default.conf /etc/nginx/conf.d/default.conf
 
-VOLUME /var/www
-
-WORKDIR /var/www
-
-EXPOSE 80 443
+EXPOSE 80
 
 STOPSIGNAL SIGTERM
 
 CMD ["nginx", "-g", "daemon off;"]
-

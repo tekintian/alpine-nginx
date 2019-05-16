@@ -1,0 +1,17 @@
+# 启用Naxsi模块 并拦截指定的非法请求。如果要关闭Naxsi模块，可使用SecRulesDisabled选项。
+SecRulesEnabled;
+
+# 拒绝访问时展示的页面
+DeniedUrl "/RequestDenied";
+# 启用学习模式，即拦截请求后不拒绝访问，只将触发规则的请求写入日志。建议开发模式的时候启用学习模式
+# LearningMode;
+
+LibInjectionSql; #enable libinjection support for SQLI
+LibInjectionXss; #enable libinjection support for XSS
+
+# 检查规则 确定 naxsi 何时采取行动
+CheckRule "$SQL >= 8" BLOCK; #the action to take when the $SQL score is superior or equal to 8
+CheckRule "$RFI >= 8" BLOCK;
+CheckRule "$TRAVERSAL >= 5" BLOCK;
+CheckRule "$UPLOAD >= 5" BLOCK;
+CheckRule "$XSS >= 8" BLOCK;
