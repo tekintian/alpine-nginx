@@ -1,6 +1,6 @@
-FROM alpine:3.9
+FROM tekintian/alpine:3.9
 
-LABEL maintainer="NGINX Docker Maintainers <docker-maint@nginx.com>"
+LABEL maintainer="TekinTian <tekintian@gmail.com>"
 
 ENV NGINX_VERSION 1.15.12
 

@@ -1,4 +1,4 @@
-FROM alpine:3.9
+FROM tekintian/alpine:3.9
 
 LABEL maintainer="NGINX Docker Maintainers <docker-maint@nginx.com>"
 
@@ -102,7 +102,7 @@ RUN set -x \
     && mv /tmp/envsubst /usr/local/bin/ \
 # Bring in tzdata so users could set the timezones through the environment
 # variables
-    && apk add --no-cache tzdata \
+    # && apk add --no-cache tzdata \
 # forward request and error logs to docker log collector
     && ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log
