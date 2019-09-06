@@ -2,7 +2,7 @@ FROM tekintian/alpine:3.9
 
 LABEL maintainer="TekinTian <tekintian@gmail.com>"
 # http://nginx.org/en/download.html
-ENV NGINX_VERSION 1.16.0
+ENV NGINX_VERSION 1.16.1
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& CONFIG="\

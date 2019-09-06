@@ -3,11 +3,14 @@ FROM tekintian/alpine:3.8
 LABEL maintainer="TekinTian <tekintian@gmail.com>"
 
 # http://nginx.org/
-ENV NGINX_VERSION 1.16.0
+ENV NGINX_VERSION 1.16.1
 # https://github.com/nbs-system/naxsi
+# https://github.com/nbs-system/naxsi/archive/0.56.tar.gz
 ENV NAXSI_VERSION master
-# https://luajit.org/download.html
-ENV LUAJIT_VERSION 2.1.0-beta3
+# https://luajit.org/download.html 官方已经好几年没有更新了，换成 openresty的版本
+# https://github.com/openresty/luajit2/releases
+# https://github.com/openresty/luajit2/archive/v$LUAJIT_VERSION.tar.gz
+ENV LUAJIT_VERSION 2.1-20190626
 # https://github.com/simplresty/ngx_devel_kit
 ENV NDK_VERSION 0.3.1rc1
 # https://github.com/openresty/lua-nginx-module/releases
@@ -100,7 +103,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
 	&& curl -fSL https://github.com/nbs-system/naxsi/archive/$NAXSI_VERSION.tar.gz  -o naxsi-$NAXSI_VERSION.tar.gz \
 	&& curl -fSL https://github.com/simplresty/ngx_devel_kit/archive/v$NDK_VERSION.tar.gz  -o ngx_devel_kit-$NDK_VERSION.tar.gz \
-	&& curl -fSL https://luajit.org/download/LuaJIT-$LUAJIT_VERSION.tar.gz  -o LuaJIT-$LUAJIT_VERSION.tar.gz \
+	&& curl -fSL https://github.com/openresty/luajit2/archive/v$LUAJIT_VERSION.tar.gz  -o luajit2-$LUAJIT_VERSION.tar.gz \
 	&& curl -fSL https://github.com/openresty/lua-nginx-module/archive/v$LUA_VERSION.tar.gz  -o lua-nginx-module-$LUA_VERSION.tar.gz \
 	&& curl -fSL https://github.com/openresty/lua-resty-core/archive/master.tar.gz  -o lua-resty-core-master.tar.gz \
 	&& curl -fSL https://github.com/openresty/set-misc-nginx-module/archive/master.tar.gz  -o set-misc-nginx-module-master.tar.gz \
@@ -133,7 +136,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& mkdir -p /usr/src \
 	&& tar -zxC /usr/src -f nginx.tar.gz \
 	&& tar -zxC /usr/src -f naxsi-$NAXSI_VERSION.tar.gz \
-	&& tar -zxC /usr/src -f LuaJIT-$LUAJIT_VERSION.tar.gz \
+	&& tar -zxC /usr/src -f luajit2-$LUAJIT_VERSION.tar.gz \
 	&& tar -zxC /usr/src -f ngx_devel_kit-$NDK_VERSION.tar.gz \
 	&& tar -zxC /usr/src -f lua-nginx-module-$LUA_VERSION.tar.gz \
 	&& tar -zxC /usr/src -f lua-resty-core-master.tar.gz \
@@ -150,11 +153,11 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& tar -zxC /usr/src -f lua-resty-logger-socket-master.tar.gz \
 	&& tar -zxC /usr/src -f lua-resty-string-master.tar.gz \
 	# LuaJIT 2.1.x install \
-	&& cd /usr/src/LuaJIT-$LUAJIT_VERSION \
+	&& cd /usr/src/luajit2-$LUAJIT_VERSION \
 	&& make install PREFIX=/usr/local/luajit \
 	&& export LUAJIT_LIB=/usr/local/luajit/lib \
 	&& export LUAJIT_INC=/usr/local/luajit/include/luajit-2.1 \
-	&& ln -sf /usr/local/luajit/bin/luajit-2.1.0-beta3 /usr/local/luajit/bin/luajit \
+	&& ln -sf /usr/local/luajit/bin/luajit-$LUAJIT_VERSION /usr/local/luajit/bin/luajit \
 	# lua-resty-core install \
 	&& cd /usr/src/lua-resty-core-master \
 	&& mv Makefile Makefile.bk \

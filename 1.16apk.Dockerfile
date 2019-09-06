@@ -1,9 +1,10 @@
 FROM tekintian/alpine:3.9
 
 LABEL maintainer="NGINX Docker Maintainers <docker-maint@nginx.com>"
-
-ENV NGINX_VERSION 1.16.0
-ENV NJS_VERSION   0.3.1
+# http://nginx.org/packages/alpine/v3.9/main/x86_64/
+# nginx-module-njs-1.16.1.0.3.5-r1.apk 
+ENV NGINX_VERSION 1.16.1
+ENV NJS_VERSION   0.3.5
 ENV PKG_RELEASE 1
 
 RUN set -x \

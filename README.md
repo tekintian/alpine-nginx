@@ -9,7 +9,6 @@
 #fastcgi_pass php:9000;
 
 
-
 To reload the NGINX configuration, run this command:
 #重新加载容器中的nginx配置文件 相当于 service nginx reload
 docker kill -s HUP nginx
