@@ -144,9 +144,15 @@ mariadb104:
 ```
 
 ~~~shell
+# alpine 3.10
+docker build -f Dockerfile -t tekintian/alpine-nginx .
+docker build -f 1.17.Dockerfile -t tekintian/alpine-nginx:1.17 .
+docker build -f 1.16.Dockerfile -t tekintian/alpine-nginx:1.16 .
+docker build -f 1.15.Dockerfile -t tekintian/alpine-nginx:1.15 .
+
+
 # alpine 3.9
 docker build -f Dockerfile -t tekintian/alpine-nginx .
-docker build -f latest.Dockerfile -t tekintian/alpine-nginx .
 docker build -f stable.Dockerfile -t tekintian/alpine-nginx:stable .
 docker build -f 1.15.Dockerfile -t tekintian/alpine-nginx:1.15.12 .
 

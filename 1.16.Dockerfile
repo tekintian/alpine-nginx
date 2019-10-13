@@ -1,4 +1,4 @@
-FROM tekintian/alpine:3.9
+FROM tekintian/alpine:3.10
 
 LABEL maintainer="TekinTian <tekintian@gmail.com>"
 # http://nginx.org/en/download.html
