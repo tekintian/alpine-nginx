@@ -119,20 +119,20 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& curl -fSL https://github.com/cloudflare/lua-resty-logger-socket/archive/master.tar.gz  -o lua-resty-logger-socket-master.tar.gz \
 	&& curl -fSL https://github.com/openresty/lua-resty-string/archive/master.tar.gz  -o lua-resty-string-master.tar.gz \
 	\
-	&& export GNUPGHOME="$(mktemp -d)" \
-	&& found=''; \
-	for server in \
-		ha.pool.sks-keyservers.net \
-		hkp://keyserver.ubuntu.com:80 \
-		hkp://p80.pool.sks-keyservers.net:80 \
-		pgp.mit.edu \
-	; do \
-		echo "Fetching GPG key $GPG_KEYS from $server"; \
-		gpg --keyserver "$server" --keyserver-options timeout=10 --recv-keys "$GPG_KEYS" && found=yes && break; \
-	done; \
-	test -z "$found" && echo >&2 "error: failed to fetch GPG key $GPG_KEYS" && exit 1; \
-	gpg --batch --verify nginx.tar.gz.asc nginx.tar.gz \
-	&& rm -rf "$GNUPGHOME" nginx.tar.gz.asc \
+	# && export GNUPGHOME="$(mktemp -d)" \
+	# && found=''; \
+	# for server in \
+	# 	ha.pool.sks-keyservers.net \
+	# 	hkp://keyserver.ubuntu.com:80 \
+	# 	hkp://p80.pool.sks-keyservers.net:80 \
+	# 	pgp.mit.edu \
+	# ; do \
+	# 	echo "Fetching GPG key $GPG_KEYS from $server"; \
+	# 	gpg --keyserver "$server" --keyserver-options timeout=10 --recv-keys "$GPG_KEYS" && found=yes && break; \
+	# done; \
+	# test -z "$found" && echo >&2 "error: failed to fetch GPG key $GPG_KEYS" && exit 1; \
+	# gpg --batch --verify nginx.tar.gz.asc nginx.tar.gz \
+	# && rm -rf "$GNUPGHOME" nginx.tar.gz.asc \
 	&& mkdir -p /usr/src \
 	&& tar -zxC /usr/src -f nginx.tar.gz \
 	&& tar -zxC /usr/src -f naxsi-$NAXSI_VERSION.tar.gz \
@@ -225,7 +225,6 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& rm -rf /tmp/* \
 	&& rm -rf /usr/src/*
 
-VOLUME /var/www
 WORKDIR /var/www
 
 EXPOSE 80 443

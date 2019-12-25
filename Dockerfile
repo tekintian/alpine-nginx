@@ -2,7 +2,7 @@ FROM tekintian/alpine:3.10
 
 LABEL maintainer="TekinTian <tekintian@gmail.com>"
 # http://nginx.org/en/download.html
-ENV NGINX_VERSION 1.17.4
+ENV NGINX_VERSION 1.17.7
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& CONFIG="\
@@ -75,20 +75,20 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	\
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
-	&& export GNUPGHOME="$(mktemp -d)" \
-	&& found=''; \
-	for server in \
-		ha.pool.sks-keyservers.net \
-		hkp://keyserver.ubuntu.com:80 \
-		hkp://p80.pool.sks-keyservers.net:80 \
-		pgp.mit.edu \
-	; do \
-		echo "Fetching GPG key $GPG_KEYS from $server"; \
-		gpg --keyserver "$server" --keyserver-options timeout=10 --recv-keys "$GPG_KEYS" && found=yes && break; \
-	done; \
-	test -z "$found" && echo >&2 "error: failed to fetch GPG key $GPG_KEYS" && exit 1; \
-	gpg --batch --verify nginx.tar.gz.asc nginx.tar.gz \
-	&& rm -rf "$GNUPGHOME" nginx.tar.gz.asc \
+	# && export GNUPGHOME="$(mktemp -d)" \
+	# && found=''; \
+	# for server in \
+	# 	ha.pool.sks-keyservers.net \
+	# 	hkp://keyserver.ubuntu.com:80 \
+	# 	hkp://p80.pool.sks-keyservers.net:80 \
+	# 	pgp.mit.edu \
+	# ; do \
+	# 	echo "Fetching GPG key $GPG_KEYS from $server"; \
+	# 	gpg --keyserver "$server" --keyserver-options timeout=10 --recv-keys "$GPG_KEYS" && found=yes && break; \
+	# done; \
+	# test -z "$found" && echo >&2 "error: failed to fetch GPG key $GPG_KEYS" && exit 1; \
+	# gpg --batch --verify nginx.tar.gz.asc nginx.tar.gz \
+	# && rm -rf "$GNUPGHOME" nginx.tar.gz.asc \
 	&& mkdir -p /usr/src \
 	&& tar -zxC /usr/src -f nginx.tar.gz \
 	&& rm -rf *.tar.gz \
@@ -146,7 +146,6 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& rm -rf /tmp/* \
 	&& rm -rf /usr/src/*
 
-VOLUME /var/www
 WORKDIR /var/www
 
 EXPOSE 80 443

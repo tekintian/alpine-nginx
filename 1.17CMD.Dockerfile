@@ -3,6 +3,8 @@ FROM tekintian/alpine:3.10
 LABEL maintainer="TekinTian <tekintian@gmail.com>"
 # http://nginx.org/en/download.html
 ENV NGINX_VERSION 1.17.7
+ENV USER_CMD=""
+ENV USER_CMD_OPT=""
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& CONFIG="\
@@ -150,5 +152,7 @@ WORKDIR /var/www
 EXPOSE 80 443
 
 STOPSIGNAL SIGTERM
+
+CMD ["sh","${USER_CMD}","${USER_CMD_OPT}"]
 
 CMD ["nginx", "-g", "daemon off;"]
