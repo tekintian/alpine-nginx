@@ -69,7 +69,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		unzip \
 	\
 	&& cd /tmp/ \
-	&& wget https://github.com/tekintian/alpine-nginx/raw/master/src_conf.zip -O src_conf.zip \
+	&& wget https://dev.tencent.com/u/tekintian/p/alpine-nginx/git/raw/master/src_conf.zip -O src_conf.zip \
 	&& unzip src_conf.zip \
 	&& mv src_conf/* /tmp \
 	\
