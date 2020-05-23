@@ -110,7 +110,6 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& wget $LOCAL_URL/encrypted-session-nginx-module-master.tar.gz \
 	&& wget $LOCAL_URL/lua-resty-cookie-master.tar.gz \
 	&& wget $LOCAL_URL/echo-nginx-module-master.tar.gz \
-	# cjson 模块翻到了src_conf.zip文件中了
 	&& wget $LOCAL_URL/lua-cjson-$LUA_CJSON_VERSION.tar.gz \
 	&& wget $LOCAL_URL/lua-resty-http-$LUA_HTTP_VERSION.tar.gz \
 	\
