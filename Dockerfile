@@ -2,7 +2,7 @@ FROM tekintian/alpine:3.10
 
 LABEL maintainer="TekinTian <tekintian@gmail.com>"
 # http://nginx.org/en/download.html
-ENV NGINX_VERSION 1.17.7
+ENV NGINX_VERSION 1.18.0
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& CONFIG="\
@@ -69,7 +69,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		unzip \
 	\
 	&& cd /tmp/ \
-	&& wget https://dev.tencent.com/u/tekintian/p/alpine-nginx/git/raw/master/src_conf.zip -O src_conf.zip \
+	&& wget https://tekintian.coding.net/p/alpine-nginx/d/alpine-nginx/git/raw/master/src_conf.zip -O src_conf.zip \
 	&& unzip src_conf.zip \
 	&& mv src_conf/* /tmp \
 	\

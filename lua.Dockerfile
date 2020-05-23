@@ -3,25 +3,26 @@ FROM tekintian/alpine:3.8
 LABEL maintainer="TekinTian <tekintian@gmail.com>"
 
 # http://nginx.org/
-ENV NGINX_VERSION 1.16.1
+ENV NGINX_VERSION 1.18.0
 # https://github.com/nbs-system/naxsi
 # https://github.com/nbs-system/naxsi/archive/0.56.tar.gz
-ENV NAXSI_VERSION master
+ENV NAXSI_VERSION 0.56
 # https://luajit.org/download.html 官方已经好几年没有更新了，换成 openresty的版本
 # https://github.com/openresty/luajit2/releases
 # https://github.com/openresty/luajit2/archive/v$LUAJIT_VERSION.tar.gz
-ENV LUAJIT_VERSION 2.1-20190626
+ENV LUAJIT_VERSION 2.1-20200102
 # https://github.com/simplresty/ngx_devel_kit
-ENV NDK_VERSION 0.3.1rc1
+ENV NDK_VERSION 0.3.1
 # https://github.com/openresty/lua-nginx-module/releases
-ENV LUA_VERSION 0.10.15
+ENV LUA_VERSION 0.10.16rc5
 # https://github.com/openresty/lua-cjson/releases
-ENV LUA_CJSON_VERSION 2.1.0.7
+ENV LUA_CJSON_VERSION 2.1.0.8rc1
 # https://github.com/ledgetech/lua-resty-http/releases
-ENV LUA_HTTP_VERSION 0.13
+ENV LUA_HTTP_VERSION 0.14
 # https://github.com/tekintian/lua-resty-core/
 # COPY assets/lua-rest-core/Makefile /tmp/lrc_Makefile
 # COPY src/lua-cjson-2.1.0.7 /tmp/lua-cjson-2.1.0.7
+ENV LOCAL_URL="http://192.168.2.8/nginx"
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& CONFIG="\
@@ -99,25 +100,25 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& unzip src_conf.zip \
 	&& mv src_conf/* /tmp \
 	\
-	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
-	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
-	&& curl -fSL https://github.com/nbs-system/naxsi/archive/$NAXSI_VERSION.tar.gz  -o naxsi-$NAXSI_VERSION.tar.gz \
-	&& curl -fSL https://github.com/simplresty/ngx_devel_kit/archive/v$NDK_VERSION.tar.gz  -o ngx_devel_kit-$NDK_VERSION.tar.gz \
-	&& curl -fSL https://github.com/openresty/luajit2/archive/v$LUAJIT_VERSION.tar.gz  -o luajit2-$LUAJIT_VERSION.tar.gz \
-	&& curl -fSL https://github.com/openresty/lua-nginx-module/archive/v$LUA_VERSION.tar.gz  -o lua-nginx-module-$LUA_VERSION.tar.gz \
-	&& curl -fSL https://github.com/openresty/lua-resty-core/archive/master.tar.gz  -o lua-resty-core-master.tar.gz \
-	&& curl -fSL https://github.com/openresty/set-misc-nginx-module/archive/master.tar.gz  -o set-misc-nginx-module-master.tar.gz \
-	&& curl -fSL https://github.com/openresty/encrypted-session-nginx-module/archive/master.tar.gz  -o encrypted-session-nginx-module-master.tar.gz \
-	&& curl -fSL https://github.com/cloudflare/lua-resty-cookie/archive/master.tar.gz  -o lua-resty-cookie-master.tar.gz \
-	&& curl -fSL https://github.com/openresty/echo-nginx-module/archive/master.tar.gz  -o echo-nginx-module-master.tar.gz \
-	#&& curl -fSL https://github.com/openresty/lua-cjson/archive/$LUA_CJSON_VERSION.tar.gz  -o lua-cjson-$LUA_CJSON_VERSION.tar.gz \
-	&& curl -fSL https://github.com/ledgetech/lua-resty-http/archive/v$LUA_HTTP_VERSION.tar.gz  -o lua-resty-http-$LUA_HTTP_VERSION.tar.gz \
+	&& wget $LOCAL_URL/nginx-$NGINX_VERSION.tar.gz \
+	&& wget $LOCAL_URL/naxsi-$NAXSI_VERSION.tar.gz \
+	&& wget $LOCAL_URL/ngx_devel_kit-$NDK_VERSION.tar.gz \
+	&& wget $LOCAL_URL/luajit2-$LUAJIT_VERSION.tar.gz \
+	&& wget $LOCAL_URL/lua-nginx-module-$LUA_VERSION.tar.gz \
+	&& wget $LOCAL_URL/lua-resty-core-master.tar.gz \
+	&& wget $LOCAL_URL/set-misc-nginx-module-master.tar.gz \
+	&& wget $LOCAL_URL/encrypted-session-nginx-module-master.tar.gz \
+	&& wget $LOCAL_URL/lua-resty-cookie-master.tar.gz \
+	&& wget $LOCAL_URL/echo-nginx-module-master.tar.gz \
+	# cjson 模块翻到了src_conf.zip文件中了
+	&& wget $LOCAL_URL/lua-cjson-$LUA_CJSON_VERSION.tar.gz \
+	&& wget $LOCAL_URL/lua-resty-http-$LUA_HTTP_VERSION.tar.gz \
 	\
-	&& curl -fSL https://github.com/openresty/lua-resty-lrucache/archive/master.tar.gz  -o lua-resty-lrucache-master.tar.gz \
-	&& curl -fSL https://github.com/openresty/lua-resty-redis/archive/master.tar.gz  -o lua-resty-redis-master.tar.gz \
-	&& curl -fSL https://github.com/openresty/lua-resty-mysql/archive/master.tar.gz  -o lua-resty-mysql-master.tar.gz \
-	&& curl -fSL https://github.com/cloudflare/lua-resty-logger-socket/archive/master.tar.gz  -o lua-resty-logger-socket-master.tar.gz \
-	&& curl -fSL https://github.com/openresty/lua-resty-string/archive/master.tar.gz  -o lua-resty-string-master.tar.gz \
+	&& wget $LOCAL_URL/lua-resty-lrucache-master.tar.gz \
+	&& wget $LOCAL_URL/lua-resty-redis-master.tar.gz \
+	&& wget $LOCAL_URL/lua-resty-mysql-master.tar.gz \
+	&& wget $LOCAL_URL/lua-resty-logger-socket-master.tar.gz \
+	&& wget $LOCAL_URL/lua-resty-string-master.tar.gz \
 	\
 	# && export GNUPGHOME="$(mktemp -d)" \
 	# && found=''; \
@@ -134,7 +135,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	# gpg --batch --verify nginx.tar.gz.asc nginx.tar.gz \
 	# && rm -rf "$GNUPGHOME" nginx.tar.gz.asc \
 	&& mkdir -p /usr/src \
-	&& tar -zxC /usr/src -f nginx.tar.gz \
+	&& tar -zxC /usr/src -f nginx-$NGINX_VERSION.tar.gz \
 	&& tar -zxC /usr/src -f naxsi-$NAXSI_VERSION.tar.gz \
 	&& tar -zxC /usr/src -f luajit2-$LUAJIT_VERSION.tar.gz \
 	&& tar -zxC /usr/src -f ngx_devel_kit-$NDK_VERSION.tar.gz \
@@ -144,7 +145,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& tar -zxC /usr/src -f encrypted-session-nginx-module-master.tar.gz \
 	&& tar -zxC /usr/src -f lua-resty-cookie-master.tar.gz \
 	&& tar -zxC /usr/src -f echo-nginx-module-master.tar.gz \
-	#&& tar -zxC /usr/src -f lua-cjson-$LUA_CJSON_VERSION.tar.gz \
+	&& tar -zxC /usr/src -f lua-cjson-$LUA_CJSON_VERSION.tar.gz \
 	&& tar -zxC /usr/src -f lua-resty-http-$LUA_HTTP_VERSION.tar.gz \
 	\
 	&& tar -zxC /usr/src -f lua-resty-lrucache-master.tar.gz \
@@ -164,7 +165,11 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& mv /tmp/lrc_Makefile /usr/src/lua-resty-core-master/Makefile \
 	&& make && make install \
 	# lua-json install more https://www.kyne.com.au/~mark/software/lua-cjson-manual.html#_installation \
-	&& cd /tmp/lua-cjson-$LUA_CJSON_VERSION \
+	&& cd /usr/src/lua-cjson-$LUA_CJSON_VERSION \
+	# 修正编译路径
+	&& sed -i "s@^PREFIX =            /usr/local@PREFIX = /usr/local/luajit@" ./Makefile \
+	&& sed -i "s@^LUA_INCLUDE_DIR ?=   \$(PREFIX)/include@LUA_INCLUDE_DIR ?=   \$(PREFIX)/include/luajit-2.1@" ./Makefile \
+	# 编译安装
 	&& make && make install \
 	# Lua resty core install \
 	&& cd /usr/src/nginx-$NGINX_VERSION \

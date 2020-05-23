@@ -2,7 +2,7 @@ FROM tekintian/alpine:3.8
 
 LABEL maintainer="TekinTian <tekintian@gmail.com>"
 
-ENV NGINX_VERSION 1.16.0
+ENV NGINX_VERSION 1.18.0
 ENV NAXSI_VERSION 0.56
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
@@ -67,14 +67,6 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		libxslt-dev \
 		gd-dev \
 		geoip-dev \
-		wget \
-		unzip \
-	\
-	&& cd /tmp/ \
-	&& wget https://dev.tencent.com/u/tekintian/p/alpine-nginx/git/raw/master/src_conf.zip -O src_conf.zip \
-	&& unzip src_conf.zip \
-	&& mv src_conf/* /tmp \
-	\
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
 	&& curl -fSL https://github.com/nbs-system/naxsi/archive/$NAXSI_VERSION.tar.gz  -o naxsi.tar.gz \
@@ -95,8 +87,16 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& mkdir -p /usr/src \
 	&& tar -zxC /usr/src -f nginx.tar.gz \
 	&& tar -zxC /usr/src -f naxsi.tar.gz \
-	&& rm *.tar.gz \
+	&& rm nginx.tar.gz \
+	&& rm naxsi.tar.gz \
 	&& cd /usr/src/nginx-$NGINX_VERSION \
+	&& ./configure $CONFIG --with-debug \
+	&& make -j$(getconf _NPROCESSORS_ONLN) \
+	&& mv objs/nginx objs/nginx-debug \
+	&& mv objs/ngx_http_xslt_filter_module.so objs/ngx_http_xslt_filter_module-debug.so \
+	&& mv objs/ngx_http_image_filter_module.so objs/ngx_http_image_filter_module-debug.so \
+	&& mv objs/ngx_http_geoip_module.so objs/ngx_http_geoip_module-debug.so \
+	&& mv objs/ngx_stream_geoip_module.so objs/ngx_stream_geoip_module-debug.so \
 	&& ./configure $CONFIG \
 	&& make -j$(getconf _NPROCESSORS_ONLN) \
 	&& make install \
@@ -105,6 +105,11 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& mkdir -p /var/www/public/ \
 	&& install -m644 html/index.html /var/www/public/ \
 	&& install -m644 html/50x.html /var/www/public/ \
+	&& install -m755 objs/nginx-debug /usr/sbin/nginx-debug \
+	&& install -m755 objs/ngx_http_xslt_filter_module-debug.so /usr/lib/nginx/modules/ngx_http_xslt_filter_module-debug.so \
+	&& install -m755 objs/ngx_http_image_filter_module-debug.so /usr/lib/nginx/modules/ngx_http_image_filter_module-debug.so \
+	&& install -m755 objs/ngx_http_geoip_module-debug.so /usr/lib/nginx/modules/ngx_http_geoip_module-debug.so \
+	&& install -m755 objs/ngx_stream_geoip_module-debug.so /usr/lib/nginx/modules/ngx_stream_geoip_module-debug.so \
 	&& ln -s ../../usr/lib/nginx/modules /etc/nginx/modules \
 	&& strip /usr/sbin/nginx* \
 	&& strip /usr/lib/nginx/modules/*.so \
@@ -126,30 +131,26 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 			| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
 	)" \
 	&& apk add --no-cache --virtual .nginx-rundeps $runDeps \
-	#backup default nginx.conf
-	&& mv /etc/nginx/nginx.conf /etc/nginx/nginx_conf.default \
-	&& cd /tmp/ \
-	&& mv public/index.html /var/www/public/index.html \
-	&& mv nginx.naxsi.conf /etc/nginx/nginx.conf \
-	&& mv naxsi.rules /etc/nginx/conf.d/naxsi.rules \
-	&& mv fastcgi.conf /etc/nginx/fastcgi.conf \
-	&& mv nginx.naxsi.default.conf /etc/nginx/conf.d/default.conf \
-	\
 	&& apk del .build-deps \
 	&& apk del .gettext \
 	&& mv /tmp/envsubst /usr/local/bin/ \
 	\
 	# Bring in tzdata so users could set the timezones through the environment
 	# variables
-	# && apk add --no-cache tzdata \
-	# \
+	#&& apk add --no-cache tzdata \
+	#\
 	# forward request and error logs to docker log collector
 	&& ln -sf /dev/stdout /var/log/nginx/access.log \
-	&& ln -sf /dev/stderr /var/log/nginx/error.log \
-	&& rm -rf /tmp/* \
-	&& rm -rf /usr/src/*
+	&& ln -sf /dev/stderr /var/log/nginx/error.log
+
+COPY public/index.html /var/www/public/index.html
+COPY nginx.naxsi.conf /etc/nginx/nginx.conf
+COPY naxsi.rules /etc/nginx/conf.d/naxsi.rules
+COPY fastcgi.conf /etc/nginx/fastcgi.conf
+COPY nginx.naxsi.default.conf /etc/nginx/conf.d/default.conf
 
 VOLUME /var/www
+
 WORKDIR /var/www
 
 EXPOSE 80 443
@@ -157,3 +158,4 @@ EXPOSE 80 443
 STOPSIGNAL SIGTERM
 
 CMD ["nginx", "-g", "daemon off;"]
+

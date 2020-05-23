@@ -6,6 +6,16 @@
 
 默认工作目录目录： /var/www/public
 
+
+apk add --no-cache g++ autoconf automake pkgconfig leptonica-dev libtool libpng libjpeg tiff zlib leptonica
+./autogen.sh
+./configure --prefix=$HOME/local/
+make
+make install
+
+libicu-devel  libpango1.0-dev  libcairo-dev
+
+
 #fastcgi_pass php:9000;
 
 
@@ -144,8 +154,18 @@ mariadb104:
 ```
 
 ~~~shell
+
+docker build -f naxsi.Dockerfile -t tekintian/alpine-nginx:naxsi .
+
+
 # alpine 3.10
 docker build -f Dockerfile -t tekintian/alpine-nginx .
+docker build -f 1.18.Dockerfile -t tekintian/alpine-nginx:1.18 .
+docker build -f 1.18.Dockerfile -t tekintian/alpine-nginx:1.18.0 .
+
+docker build -f 1.18lua.Dockerfile -t tekintian/alpine-nginx:1.18lua .
+
+
 docker build -f 1.17.Dockerfile -t tekintian/alpine-nginx:1.17 .
 docker build -f 1.16.Dockerfile -t tekintian/alpine-nginx:1.16 .
 docker build -f 1.15.Dockerfile -t tekintian/alpine-nginx:1.15 .
