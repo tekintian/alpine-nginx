@@ -163,7 +163,10 @@ docker build -f Dockerfile -t tekintian/alpine-nginx .
 docker build -f 1.18.Dockerfile -t tekintian/alpine-nginx:1.18 .
 docker build -f 1.18.Dockerfile -t tekintian/alpine-nginx:1.18.0 .
 
+
 docker build -f 1.18lua.Dockerfile -t tekintian/alpine-nginx:1.18lua .
+
+docker build -f 1.16lua.Dockerfile -t tekintian/alpine-nginx:1.16lua .
 
 
 docker build -f 1.17.Dockerfile -t tekintian/alpine-nginx:1.17 .
@@ -219,6 +222,28 @@ https://github.com/openresty/echo-nginx-module
 https://github.com/cloudflare/lua-resty-logger-socket
 https://github.com/openresty/lua-resty-string
 https://github.com/cloudflare/lua-resty-cookie
+
+~~~
+
+~~~sh
+sed -i 's|/etc/nginx/lua/lib/([^/]+)/|/etc/nginx/lua/lib/$LUA_VERSION/|g' nginx.conf
+
+/etc/nginx/lua/lib/0.10.15
+LUA_VERSION 0.10.16rc5
+
+sed -i "s@/etc/nginx/lua/lib/0.10.15@/etc/nginx/lua/lib/${LUA_VERSION}@g" nginx.conf
+
+
+sed -i "s@upload_max_filesize = 2M@upload_max_filesize = 100M@g" nginx.conf
+
+
+sed -i "s@/etc/nginx/lua/lib/0.10.15@/etc/nginx/lua/lib/${LUA_VERSION}@g" nginx.conf
+sed -i "s@/etc/nginx/lua/lib/0.10.15@/etc/nginx/lua/lib/${LUA_VERSION}@g" nginx.conf
+
+
+sed -i "s@/usr/local/nginx@${web_install_dir}@g" ${web_install_dir}/conf/waf.conf
+sed -i "s@/usr/local/nginx@${web_install_dir}@" ${web_install_dir}/conf/waf/config.lua
+sed -i "s@/home/wwwlogs@${wwwlogs_dir}@" ${web_install_dir}/conf/waf/config.lua
 
 ~~~
 
