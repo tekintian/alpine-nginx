@@ -18,7 +18,7 @@ ENV LUA_VERSION 0.10.16rc5
 # https://github.com/openresty/lua-cjson/releases
 ENV LUA_CJSON_VERSION 2.1.0.8rc1
 # https://github.com/ledgetech/lua-resty-http/releases
-ENV LUA_HTTP_VERSION 0.14
+ENV LUA_HTTP_VERSION 0.15
 # https://github.com/tekintian/lua-resty-core/
 # COPY assets/lua-rest-core/Makefile /tmp/lrc_Makefile
 # COPY src/lua-cjson-2.1.0.7 /tmp/lua-cjson-2.1.0.7
@@ -218,6 +218,8 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& apk del .gettext \
 	&& mv /tmp/envsubst /usr/local/bin/ \
 	\
+	# 替换默认的NGINX配置中的lua路径
+	&& sed -i "s#/etc/nginx/lua/lib/0.10.15#/etc/nginx/lua/lib/${LUA_VERSION}#g" /etc/nginx/nginx.conf \
 	# Bring in tzdata so users could set the timezones through the environment
 	# variables
 	# && apk add --no-cache tzdata \
